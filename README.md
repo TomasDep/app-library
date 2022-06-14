@@ -9,7 +9,7 @@
 - JWT
 - Lombok
 - Swagger
-Próximamente más...
+- Próximamente más...
 # UML
 ## Diagrama E-R
 **En desarrollo...**
