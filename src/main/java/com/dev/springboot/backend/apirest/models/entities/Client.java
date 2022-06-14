@@ -17,8 +17,13 @@ public class Client implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String lastname;
+
+    @Column(nullable = false, unique = true)
     private String email;
     private String address;
     private String phone;
@@ -31,7 +36,7 @@ public class Client implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @PrePersist
-    public void PrePresist() {
+    public void PrePersist() {
         this.createAt = new Date();
     }
 }
