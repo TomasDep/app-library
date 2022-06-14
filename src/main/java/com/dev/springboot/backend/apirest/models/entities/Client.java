@@ -14,12 +14,14 @@ import java.util.Date;
 @Setter
 public class Client implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
     private String lastname;
     private String email;
+    private String address;
+    private String phone;
 
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)
@@ -27,4 +29,9 @@ public class Client implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @PrePersist
+    public void PrePresist() {
+        this.createAt = new Date();
+    }
 }
