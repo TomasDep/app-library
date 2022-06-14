@@ -12,4 +12,4 @@
 - Próximamente más...
 # UML
 ## Diagrama E-R
-**En desarrollo...**
+![Alt text](src/main/resources/static/images/diagrama-e-r-libreria.png?raw=true "diagrama entidad relacion")
