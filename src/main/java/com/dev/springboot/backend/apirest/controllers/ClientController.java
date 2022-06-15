@@ -2,16 +2,15 @@ package com.dev.springboot.backend.apirest.controllers;
 
 import com.dev.springboot.backend.apirest.models.entities.Client;
 import com.dev.springboot.backend.apirest.models.services.IClientService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ public class ClientController {
     private IClientService clientService;
 
     @GetMapping("/clients")
+    @ApiOperation(value = "Encontrar el listado de todos los clientes")
     public ResponseEntity<?> index() {
         Map<String, Object> response = new HashMap<>();
 
@@ -36,6 +36,7 @@ public class ClientController {
     }
 
     @GetMapping("/client/{id}")
+    @ApiOperation(value = "Encontrar un cliente por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Client client = null;
@@ -60,6 +61,7 @@ public class ClientController {
     }
 
     @PostMapping("/client")
+    @ApiOperation(value = "Ingresar un nuevo cliente")
     public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
         Map<String, Object> response = new HashMap<>();
         Client newClient = null;
@@ -89,6 +91,7 @@ public class ClientController {
     }
 
     @PutMapping("/client/{id}")
+    @ApiOperation(value = "Actualizar los datos de un cliente por id")
     public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result ,@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Client currentClient = this.clientService.findById(id);
@@ -130,6 +133,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/client/{id}")
+    @ApiOperation(value = "Eliminar un cliente por el id")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
