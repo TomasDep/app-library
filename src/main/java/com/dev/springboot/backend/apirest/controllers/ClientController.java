@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class ClientController {
     @Autowired
     private IClientService clientService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/clients")
     @ApiOperation(value = "Encontrar el listado de todos los clientes")
     public ResponseEntity<?> index() {
@@ -35,6 +37,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/client/{id}")
     @ApiOperation(value = "Encontrar un cliente por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
@@ -60,6 +63,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/client")
     @ApiOperation(value = "Ingresar un nuevo cliente")
     public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
@@ -90,6 +94,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/client/{id}")
     @ApiOperation(value = "Actualizar los datos de un cliente por id")
     public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result ,@PathVariable Long id) {
@@ -132,6 +137,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/client/{id}")
     @ApiOperation(value = "Eliminar un cliente por el id")
     public ResponseEntity<?> delete(@PathVariable Long id) {

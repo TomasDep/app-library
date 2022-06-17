@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class UserController {
     @Autowired
     IUserService userService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     @ApiOperation(value = "Encontrar listado de todos los usuarios")
     public ResponseEntity<?> index() {
@@ -35,6 +37,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{id}")
     @ApiOperation(value = "Encontrar un usuario por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
@@ -60,6 +63,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users")
     @ApiOperation(value = "Registrar a un usuario")
     public ResponseEntity<?> create(@Valid @RequestBody User user, BindingResult result) {
@@ -90,6 +94,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/users/{id}")
     @ApiOperation(value = "Actualizar los datos de un usuario por id")
     public ResponseEntity<?> update(@Valid @RequestBody User user, BindingResult result ,@PathVariable Long id) {
@@ -118,7 +123,6 @@ public class UserController {
             currentUser.setLastname(user.getLastname());
             currentUser.setEmail(user.getEmail());
             currentUser.setPassword(user.getPassword());
-            currentUser.setEnabled(user.getEnabled());
 
             updateUser = this.userService.save(currentUser);
         } catch (DataAccessException e) {
@@ -133,6 +137,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/users/{id}")
     @ApiOperation(value = "Eliminar un usuario por el id")
     public ResponseEntity<?> delete(@PathVariable Long id) {
