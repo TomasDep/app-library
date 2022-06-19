@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "books")
@@ -33,11 +35,19 @@ public class Book implements Serializable {
     private String status;
 
     private String observation;
-
     private Integer stock;
 
     @NotNull
     private Double price;
+
+    @NotNull
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "book_genre",
+            joinColumns = @JoinColumn(name = "genre_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    private List<Genre> genre;
 
     @Column(name = "create_at")
     @Temporal(TemporalType.TIMESTAMP)
