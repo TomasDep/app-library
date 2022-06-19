@@ -13,3 +13,30 @@ INSERT INTO clients (name, lastname, email, address, phone, create_at) VALUES('I
 /*------------------------------------- EJEMPLOS ROLES -------------------------------------*/
 INSERT INTO roles (role_name) VALUES('ROLE_ADMIN');
 INSERT INTO roles (role_name) VALUES('ROLE_USER');
+
+/*------------------------------------- EJEMPLOS USUARIOS -------------------------------------*/
+INSERT INTO users (name, lastname, username, email, password, create_at) VALUES('Julio', 'Cortazar', 'administrador', 'admin@email.com', '123456789', NOW());
+INSERT INTO users (name, lastname, username, email, password, create_at) VALUES('Pablo', 'Neruda', 'usuario', 'user@email.com', '123456789', NOW());
+
+/*------------------------------------- EJEMPLOS AUTORES -------------------------------------*/
+INSERT INTO authors (name, lastname, country, create_at) VALUES('Edgar Allan', 'Poe', 'EE.UU.', NOW());
+INSERT INTO authors (name, lastname, country, create_at) VALUES('Gabriel', 'Garcia Marquez', 'Colombia', NOW());
+INSERT INTO authors (name, lastname, country, create_at) VALUES('John Ronald', 'Reuel Tolkien', 'Inglaterra', NOW());
+INSERT INTO authors (name, lastname, country, create_at) VALUES('Stephen', 'King', 'EE.UU.', NOW());
+INSERT INTO authors (name, lastname, country, create_at) VALUES('Arthur Conan', 'Doyle', 'Inglaterra', NOW());
+
+/*------------------------------------- EJEMPLOS LIBROS -------------------------------------*/
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('El Cuervo', 'El cuervo es un poema narrativo escrito por Edgar Allan Poe, publicado por primera vez en 1845. Constituye su composición poética más famosa, ya que le dio reconocimiento internacional. Son notables su musicalidad, el lenguaje estilizado y la atmósfera sobrenatural que logra recrear', 'DISPONIBLE', '', 5, 22000.0, 1, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('El Corazon Delator', 'El corazón delator —en inglés original The Tell-Tale Heart— es un cuento del escritor estadounidense Edgar Allan Poe clasificado en la narrativa gótica, publicado por primera vez en el periódico literario The Pioneer en enero de 1843. ', 'POCAS UNIDADES', 'Solo en idioma ingles', 2, 21000.0, 1, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('Cien Años de Soledad', 'Cien años de soledad es una novela del escritor colombiano Gabriel García Márquez, ganador del Premio Nobel de Literatura en 1982. Es considerada una obra maestra de la literatura hispanoamericana y universal, así como una de las obras más traducidas y leídas en español', 'POCAS UNIDADES', '', 1, 32000.0, 2, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('Cronica de una Muerte Anunciada', 'Crónica de una muerte anunciada es una novela del escritor colombiano Gabriel García Márquez, publicada por primera vez en 1981. Fue incluida en la lista de las 100 mejores novelas en español del siglo XX del periódico español El Mundo', 'POCAS UNIDADES', '', 2, 42000.0, 2, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('La Caida de Gondolin', 'a caída de Gondolin» es un relato del escritor británico J. R. R. Tolkien, publicado de forma póstuma por su tercer hijo y principal editor, Christopher Tolkien, en el segundo volumen de La historia de la Tierra Media: El libro de los cuentos perdidos 2.', 'POCAS UNIDADES', '', 2, 25000.0, 3, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('El Silmarillion', 'El Silmarillion es una recopilacion de obras de J.R.R. Tolkien, editada y publicada postumamente por su hijo Christopher Tolkien, en 1977. En ella se narra, entre otras cosas, la creación de Eä y el nacimiento de las razas más importantes de Arda.', 'DISPONIBLE', '', 14, 45000.0, 3, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('El Resplandor', 'El resplandor es la tercera novela de terror del escritor estadounidense Stephen King, publicada en 1977. El título se inspiró en la canción de John Lennon "Instant Karma!", que contiene la línea We all shine on...', 'SIN EXISTENCIAS', 'Unidades solo en idioma ingles', 0, 37000.0, 4, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('Carrie', 'Carrie es la primera novela publicada por el escritor estadounidense Stephen King, en 1974.​ Es uno de los libros más censurados en las escuelas de EE. UU. y la película incluso estuvo prohibida en Finlandia.', 'POCAS UNIDADES', '', 3, 34000.0, 4, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('Estudio en Escarlata', 'Un Estudio en escarlata es una novela de misterio escrita por Arthur Conan Doyle y publicada en la revista Beetons Christmas Annual de noviembre de 1887, con ilustraciones de David Henry Friston. Se trata de la primera aparición de Sherlock Holmes y el Dr. Watson.', 'DISPONIBLE', '', 14, 21000.0, 5, NOW());
+INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('La Liga de los Pelirrojos', 'Con cargo al legado del difunto Bzekish Hopkins, de Lebanon, Pennsylvania, E.E. U.S., se ha producido otra vacante que de derecho a un miembro de la liga a percibir un salario de cuatro libros a la semana por servicios puramente nominales.', 'POCAS UNIDADES', '', 3, 20000.0, 5, NOW());
+/*------------------------------------- EJEMPLOS RELACION USUARIOS_ROLES -------------------------------------*/
+INSERT INTO user_role (user_id, role_id) VALUES(1, 1);
+INSERT INTO user_role (user_id, role_id) VALUES(1, 2);
+INSERT INTO user_role (user_id, role_id) VALUES(2, 2);
