@@ -36,7 +36,53 @@ INSERT INTO books (name, description, status, observation, stock, price, author_
 INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('Carrie', 'Carrie es la primera novela publicada por el escritor estadounidense Stephen King, en 1974.​ Es uno de los libros más censurados en las escuelas de EE. UU. y la película incluso estuvo prohibida en Finlandia.', 'POCAS UNIDADES', '', 3, 34000.0, 4, NOW());
 INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('Estudio en Escarlata', 'Un Estudio en escarlata es una novela de misterio escrita por Arthur Conan Doyle y publicada en la revista Beetons Christmas Annual de noviembre de 1887, con ilustraciones de David Henry Friston. Se trata de la primera aparición de Sherlock Holmes y el Dr. Watson.', 'DISPONIBLE', '', 14, 21000.0, 5, NOW());
 INSERT INTO books (name, description, status, observation, stock, price, author_id, create_at) VALUES('La Liga de los Pelirrojos', 'Con cargo al legado del difunto Bzekish Hopkins, de Lebanon, Pennsylvania, E.E. U.S., se ha producido otra vacante que de derecho a un miembro de la liga a percibir un salario de cuatro libros a la semana por servicios puramente nominales.', 'POCAS UNIDADES', '', 3, 20000.0, 5, NOW());
+
+/*------------------------------------- EJEMPLOS GENERO -------------------------------------*/
+INSERT INTO genres (name, create_at) VALUES('Cuento', NOW());
+INSERT INTO genres (name, create_at) VALUES('Misterio', NOW());
+INSERT INTO genres (name, create_at) VALUES('Gotico', NOW());
+INSERT INTO genres (name, create_at) VALUES('Poema', NOW());
+INSERT INTO genres (name, create_at) VALUES('Drama', NOW());
+INSERT INTO genres (name, create_at) VALUES('Terror', NOW());
+INSERT INTO genres (name, create_at) VALUES('Narracion', NOW());
+INSERT INTO genres (name, create_at) VALUES('Novela', NOW());
+INSERT INTO genres (name, create_at) VALUES('Fantasia', NOW());
+INSERT INTO genres (name, create_at) VALUES('Relato', NOW());
+INSERT INTO genres (name, create_at) VALUES('Suspenso', NOW());
+INSERT INTO genres (name, create_at) VALUES('Ficcion', NOW());
+INSERT INTO genres (name, create_at) VALUES('Realismo magico', NOW());
+
 /*------------------------------------- EJEMPLOS RELACION USUARIOS_ROLES -------------------------------------*/
 INSERT INTO user_role (user_id, role_id) VALUES(1, 1);
 INSERT INTO user_role (user_id, role_id) VALUES(1, 2);
 INSERT INTO user_role (user_id, role_id) VALUES(2, 2);
+
+/*------------------------------------- EJEMPLOS RELACION LIBROS_GENEROS -------------------------------------*/
+INSERT INTO book_genre (genre_id, book_id) VALUES(1, 2);
+INSERT INTO book_genre (genre_id, book_id) VALUES(2, 2);
+INSERT INTO book_genre (genre_id, book_id) VALUES(2, 4);
+INSERT INTO book_genre (genre_id, book_id) VALUES(2, 9);
+INSERT INTO book_genre (genre_id, book_id) VALUES(2, 10);
+INSERT INTO book_genre (genre_id, book_id) VALUES(3, 2);
+INSERT INTO book_genre (genre_id, book_id) VALUES(3, 7);
+INSERT INTO book_genre (genre_id, book_id) VALUES(4, 1);
+INSERT INTO book_genre (genre_id, book_id) VALUES(5, 1);
+INSERT INTO book_genre (genre_id, book_id) VALUES(5, 7);
+INSERT INTO book_genre (genre_id, book_id) VALUES(6, 1);
+INSERT INTO book_genre (genre_id, book_id) VALUES(6, 7);
+INSERT INTO book_genre (genre_id, book_id) VALUES(6, 8);
+INSERT INTO book_genre (genre_id, book_id) VALUES(7, 3);
+INSERT INTO book_genre (genre_id, book_id) VALUES(7, 4);
+INSERT INTO book_genre (genre_id, book_id) VALUES(8, 3);
+INSERT INTO book_genre (genre_id, book_id) VALUES(8, 8);
+INSERT INTO book_genre (genre_id, book_id) VALUES(8, 9);
+INSERT INTO book_genre (genre_id, book_id) VALUES(9, 5);
+INSERT INTO book_genre (genre_id, book_id) VALUES(9, 6);
+INSERT INTO book_genre (genre_id, book_id) VALUES(10, 5);
+INSERT INTO book_genre (genre_id, book_id) VALUES(10, 6);
+/*INSERT INTO book_genre (genre_id, book_id) VALUES(11, 7);
+INSERT INTO book_genre (genre_id, book_id) VALUES(11, 8);
+INSERT INTO book_genre (genre_id, book_id) VALUES(12, 7);
+INSERT INTO book_genre (genre_id, book_id) VALUES(12, 10);
+INSERT INTO book_genre (genre_id, book_id) VALUES(13, 3);
+INSERT INTO book_genre (genre_id, book_id) VALUES(13, 4);*/
