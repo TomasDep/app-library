@@ -1,5 +1,6 @@
 package com.dev.springboot.backend.apirest.models.entities;
 
+import com.dev.springboot.backend.apirest.enums.BookStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,9 +30,9 @@ public class Book implements Serializable {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @NotEmpty
-    @Column(nullable = false)
-    private String status;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private BookStatusEnum status;
 
     private String observation;
     private Integer stock;
