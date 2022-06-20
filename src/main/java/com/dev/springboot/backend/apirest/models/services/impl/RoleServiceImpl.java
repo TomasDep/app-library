@@ -1,8 +1,9 @@
-package com.dev.springboot.backend.apirest.models.services;
+package com.dev.springboot.backend.apirest.models.services.impl;
 
 import com.dev.springboot.backend.apirest.enums.RoleEnum;
 import com.dev.springboot.backend.apirest.models.entities.Role;
 import com.dev.springboot.backend.apirest.models.repository.IRoleRepository;
+import com.dev.springboot.backend.apirest.models.services.IRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

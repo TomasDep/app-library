@@ -1,7 +1,8 @@
-package com.dev.springboot.backend.apirest.models.services;
+package com.dev.springboot.backend.apirest.models.services.impl;
 
 import com.dev.springboot.backend.apirest.models.entities.PrincipalUser;
 import com.dev.springboot.backend.apirest.models.entities.User;
+import com.dev.springboot.backend.apirest.models.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
