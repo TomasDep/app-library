@@ -2,7 +2,7 @@ package com.dev.springboot.backend.apirest;
 
 import com.dev.springboot.backend.apirest.jwt.JwtEntryPoint;
 import com.dev.springboot.backend.apirest.jwt.JwtTokenFilter;
-import com.dev.springboot.backend.apirest.models.services.UserDetailsServiceImpl;
+import com.dev.springboot.backend.apirest.models.services.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,7 +57,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/auth/**", "/api/genres").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(this.jwtEntryPoint)
