@@ -38,7 +38,7 @@ public class ClientController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/client/{id}")
+    @GetMapping("/clients/{id}")
     @ApiOperation(value = "Encontrar un cliente por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
@@ -64,7 +64,7 @@ public class ClientController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/client")
+    @PostMapping("/clients")
     @ApiOperation(value = "Ingresar un nuevo cliente")
     public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
         Map<String, Object> response = new HashMap<>();
@@ -95,9 +95,9 @@ public class ClientController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/client/{id}")
+    @PutMapping("/clients/{id}")
     @ApiOperation(value = "Actualizar los datos de un cliente por id")
-    public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result ,@PathVariable Long id) {
+    public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Client currentClient = this.clientService.findById(id);
         Client updateClient = null;
@@ -138,7 +138,7 @@ public class ClientController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/client/{id}")
+    @DeleteMapping("/clients/{id}")
     @ApiOperation(value = "Eliminar un cliente por el id")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
