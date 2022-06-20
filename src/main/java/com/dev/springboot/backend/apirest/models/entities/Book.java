@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -44,10 +43,10 @@ public class Book implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "book_genre",
-            joinColumns = @JoinColumn(name = "genre_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private List<Genre> genre;
+    private Set<Genre> genre;
 
     @Column(name = "create_at")
     @Temporal(TemporalType.TIMESTAMP)
