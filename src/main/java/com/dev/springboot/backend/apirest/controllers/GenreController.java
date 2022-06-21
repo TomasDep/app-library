@@ -126,7 +126,7 @@ public class GenreController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido actualizado con exito");
+        response.put("message", "El genero ha sido actualizado con exito");
         response.put("client", updateGenres);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
