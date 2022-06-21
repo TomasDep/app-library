@@ -1,8 +1,7 @@
 package com.dev.springboot.backend.apirest.controllers;
 
-import com.dev.springboot.backend.apirest.models.entities.Client;
-import com.dev.springboot.backend.apirest.models.services.IClientService;
-import io.swagger.annotations.ApiOperation;
+import com.dev.springboot.backend.apirest.models.entities.Author;
+import com.dev.springboot.backend.apirest.models.services.IAuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -19,58 +18,54 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-public class ClientController {
+public class AuthorController {
     @Autowired
-    private IClientService clientService;
+    private IAuthorService authorService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/clients")
-    @ApiOperation(value = "Encontrar el listado de todos los clientes")
+    @GetMapping("/authors")
     public ResponseEntity<?> index() {
         Map<String, Object> response = new HashMap<>();
 
-        List<Client> clients = this.clientService.findAll();
+        List<Author> authors = this.authorService.findAll();
 
-        response.put("client", clients);
-        response.put("message", "Listado de clientes cargado con exito");
+        response.put("author", authors);
+        response.put("message", "Lista de autores cargada correctamente");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/clients/{id}")
-    @ApiOperation(value = "Encontrar un cliente por id")
+    @GetMapping("/author/{id}")
     public ResponseEntity<?> show(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        Client client = null;
+        Author author = null;
 
-        try{
-            client = this.clientService.findById(id);
+        try {
+            author = this.authorService.findById(id);
         } catch (DataAccessException e) {
             response.put("message", "Error al realizar la consulta a la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        if (client == null) {
-           response.put("message", "El cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
-           return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        if (author == null) {
+            response.put("message", "El autor Id: ".concat(id.toString().concat(" no existe en la base de datos")));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
-        response.put("client", client);
-        response.put("message", "Cliente encontrado con exito");
+        response.put("author", author);
+        response.put("message", "Autor cargado correctamente");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/clients")
-    @ApiOperation(value = "Ingresar un nuevo cliente")
-    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
+    @PostMapping("/author")
+    public ResponseEntity<?> create(@Valid @RequestBody Author author, BindingResult result) {
         Map<String, Object> response = new HashMap<>();
-        Client newClient = null;
+        Author newAuthor = null;
 
-        if (result.hasErrors()) {
+        if(result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
                 return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
             }).collect(Collectors.toList());
@@ -81,28 +76,27 @@ public class ClientController {
         }
 
         try {
-            newClient = this.clientService.save(client);
+            newAuthor = this.authorService.save(author);
         } catch (DataAccessException e) {
-            response.put("message", "Error al insertar a la base de datos");
+            response.put("message", "Error al realizar la consulta a la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido creado con exito");
-        response.put("client", newClient);
+        response.put("author", newAuthor);
+        response.put("message", "Autor creado correctamente");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/clients/{id}")
-    @ApiOperation(value = "Actualizar los datos de un cliente por id")
-    public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
+    @PutMapping("/author/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody Author author, BindingResult result, @PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        Client currentClient = this.clientService.findById(id);
-        Client updateClient = null;
+        Author currentAuthor = this.authorService.findById(id);
+        Author updateAuthor = null;
 
-        if (result.hasErrors()) {
+        if(result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
                 return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
             }).collect(Collectors.toList());
@@ -112,46 +106,44 @@ public class ClientController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
-        if (currentClient == null) {
-            response.put("message", "Error: No se pudo actualizar, el cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+        if (currentAuthor == null) {
+            response.put("message", "Error: No se pudo actualizar, el autor ID: ".concat(id.toString().concat(" no existe en la base de datos")));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
         try {
-            currentClient.setName(client.getName());
-            currentClient.setLastname(client.getLastname());
-            currentClient.setEmail(client.getEmail());
-            currentClient.setAddress(client.getAddress());
-            currentClient.setPhone(client.getPhone());
+            currentAuthor.setName(author.getName());
+            currentAuthor.setLastname(author.getLastname());
+            currentAuthor.setCountry(author.getCountry());
+            currentAuthor.setBook(author.getBook());
 
-            updateClient = this.clientService.save(currentClient);
+            updateAuthor = this.authorService.save(currentAuthor);
         } catch (DataAccessException e) {
-            response.put("message", "Error al actualizar el cliente en la base de datos");
+            response.put("message", "Error al actualizar el autor en la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido actualizado con exito");
-        response.put("client", updateClient);
+        response.put("author", updateAuthor);
+        response.put("message", "El autor ha sido actualizado correctamente");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/clients/{id}")
-    @ApiOperation(value = "Eliminar un cliente por el id")
+    @DeleteMapping("/author/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            this.clientService.delete(id);
+            this.authorService.delete(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al eliminar el cliente en la base de datos");
+            response.put("message", "Error al elimiar al autor en la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido eliminado con exito");
+        response.put("message", "El autor ha sido eliminado con exito");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }

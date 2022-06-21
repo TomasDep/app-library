@@ -1,7 +1,7 @@
 package com.dev.springboot.backend.apirest.controllers;
 
-import com.dev.springboot.backend.apirest.models.entities.Client;
-import com.dev.springboot.backend.apirest.models.services.IClientService;
+import com.dev.springboot.backend.apirest.models.entities.Genre;
+import com.dev.springboot.backend.apirest.models.services.IGenreService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -19,56 +19,55 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-public class ClientController {
+public class GenreController {
     @Autowired
-    private IClientService clientService;
+    private IGenreService genreService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/clients")
-    @ApiOperation(value = "Encontrar el listado de todos los clientes")
+    @GetMapping("/genres")
+    @ApiOperation(value = "Listado de Generos")
     public ResponseEntity<?> index() {
         Map<String, Object> response = new HashMap<>();
 
-        List<Client> clients = this.clientService.findAll();
+        List<Genre> genres = this.genreService.findAll();
 
-        response.put("client", clients);
-        response.put("message", "Listado de clientes cargado con exito");
+        response.put("genres", genres);
+        response.put("message", "Listado de generos cargado con exito");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/clients/{id}")
-    @ApiOperation(value = "Encontrar un cliente por id")
+    @GetMapping("genre/{id}")
+    @ApiOperation(value = "Mostrar genero por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        Client client = null;
+        Genre genre = null;
 
-        try{
-            client = this.clientService.findById(id);
+        try {
+            genre = this.genreService.findById(id);
         } catch (DataAccessException e) {
             response.put("message", "Error al realizar la consulta a la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put("error", response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage())));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        if (client == null) {
-           response.put("message", "El cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
-           return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        if (genre == null) {
+            response.put("message", "El genero ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
-        response.put("client", client);
-        response.put("message", "Cliente encontrado con exito");
+        response.put("genre", genre);
+        response.put("message", "Genero encontrado con exito");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/clients")
-    @ApiOperation(value = "Ingresar un nuevo cliente")
-    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
+    @PostMapping("/genre")
+    @ApiOperation(value = "Crear un genero")
+    public ResponseEntity<?> create(@Valid @RequestBody Genre genre, BindingResult result) {
         Map<String, Object> response = new HashMap<>();
-        Client newClient = null;
+        Genre newGenre = null;
 
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
@@ -81,26 +80,26 @@ public class ClientController {
         }
 
         try {
-            newClient = this.clientService.save(client);
+            newGenre = this.genreService.save(genre);
         } catch (DataAccessException e) {
             response.put("message", "Error al insertar a la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido creado con exito");
-        response.put("client", newClient);
+        response.put("genre", newGenre);
+        response.put("message", "Genero creado con exito");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/clients/{id}")
-    @ApiOperation(value = "Actualizar los datos de un cliente por id")
-    public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
+    @PutMapping("/genre/{id}")
+    @ApiOperation(value = "Actualizar un genero")
+    public ResponseEntity<?> update(@Valid @RequestBody Genre genre, BindingResult result, @PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        Client currentClient = this.clientService.findById(id);
-        Client updateClient = null;
+        Genre currentGenres = this.genreService.findById(id);
+        Genre updateGenres = null;
 
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
@@ -112,46 +111,42 @@ public class ClientController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
-        if (currentClient == null) {
+        if (currentGenres == null) {
             response.put("message", "Error: No se pudo actualizar, el cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
         try {
-            currentClient.setName(client.getName());
-            currentClient.setLastname(client.getLastname());
-            currentClient.setEmail(client.getEmail());
-            currentClient.setAddress(client.getAddress());
-            currentClient.setPhone(client.getPhone());
+            currentGenres.setName(genre.getName());
 
-            updateClient = this.clientService.save(currentClient);
+            updateGenres = this.genreService.save(currentGenres);
         } catch (DataAccessException e) {
             response.put("message", "Error al actualizar el cliente en la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido actualizado con exito");
-        response.put("client", updateClient);
+        response.put("message", "El genero ha sido actualizado con exito");
+        response.put("client", updateGenres);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/clients/{id}")
-    @ApiOperation(value = "Eliminar un cliente por el id")
+    @DeleteMapping("/genre/{id}")
+    @ApiOperation(value = "Eliminar un genero")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            this.clientService.delete(id);
+            this.genreService.delete(id);
         } catch (DataAccessException e) {
             response.put("message", "Error al eliminar el cliente en la base de datos");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido eliminado con exito");
+        response.put("message", "El genero ha sido eliminado con exito");
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }

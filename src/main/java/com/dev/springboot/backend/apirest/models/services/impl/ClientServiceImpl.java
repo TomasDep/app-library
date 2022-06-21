@@ -1,7 +1,8 @@
-package com.dev.springboot.backend.apirest.models.services;
+package com.dev.springboot.backend.apirest.models.services.impl;
 
 import com.dev.springboot.backend.apirest.models.dao.IClientDao;
 import com.dev.springboot.backend.apirest.models.entities.Client;
+import com.dev.springboot.backend.apirest.models.services.IClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class ClientServiceImpl implements IClientService{
+public class ClientServiceImpl implements IClientService {
     @Autowired
     private IClientDao clientDao;
 
