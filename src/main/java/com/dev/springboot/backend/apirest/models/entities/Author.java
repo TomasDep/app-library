@@ -31,7 +31,7 @@ public class Author implements Serializable {
     private String country;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
+    @JoinColumn(name = "author_id", nullable = true)
     private List<Book> book;
 
     @Column(name = "create_at")
