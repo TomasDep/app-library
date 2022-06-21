@@ -10,6 +10,7 @@ import com.dev.springboot.backend.apirest.models.entities.User;
 import com.dev.springboot.backend.apirest.models.services.IRoleService;
 import com.dev.springboot.backend.apirest.models.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,45 +26,64 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class AuthController {
+    private static final String MESSAGE = "message";
+    private static final String USER = "user";
+    private static final String ERRORS = "errors";
+    private static final String ROLE = "admin";
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private MessageSource messageSource;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    IUserService userService;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    IRoleService roleService;
+    private IUserService userService;
 
     @Autowired
-    JwtProvider jwtProvider;
+    private IRoleService roleService;
+
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @PostMapping("auth/register")
-    public ResponseEntity<?> register(@Valid @RequestBody NewUserDto newUserDto, BindingResult result) {
+    public ResponseEntity<?> register(
+            @Valid @RequestBody NewUserDto newUserDto,
+            BindingResult result,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
+        String errorMessage = this.messageSource.getMessage("auth.message.errorExist", null, locale);
+        String username = this.messageSource.getMessage("user.username", null, locale);
+        String email = this.messageSource.getMessage("user.email", null, locale);
+        String errorsMessages = this.messageSource.getMessage("auth.message.errors", null, locale);
 
         if (result.hasErrors()) {
-            response.put("message", "Datos invalidos");
+            List<String> errors = result.getFieldErrors().stream().map(error -> {
+                return String.format(errorsMessages, error.getField()).concat(" ").concat(error.getDefaultMessage());
+            }).collect(Collectors.toList());
+
+            response.put(MESSAGE, this.messageSource.getMessage("auth.message.invalid", null, locale));
+            response.put(ERRORS, errors);
+
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         if (this.userService.existsByUsername(newUserDto.getUsername())) {
-            response.put("message", "El nombre de usuario ya existe");
+            response.put(MESSAGE, String.format(errorMessage, username));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         if (this.userService.existsByEmail(newUserDto.getEmail())) {
-            response.put("message", "El email ya existe");
+            response.put(MESSAGE, String.format(errorMessage, email));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
@@ -78,7 +98,7 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
         roles.add(this.roleService.getByRoleName(RoleEnum.ROLE_USER).get());
 
-        if (newUserDto.getRoles().contains("admin")) {
+        if (newUserDto.getRoles().contains(ROLE)) {
             roles.add(this.roleService.getByRoleName(RoleEnum.ROLE_ADMIN).get());
         }
 
@@ -86,23 +106,29 @@ public class AuthController {
 
         this.userService.save(user);
 
-        response.put("user", user);
-        response.put("message", "Usuario registrado correctamente");
+        response.put(USER, user);
+        response.put(MESSAGE, this.messageSource.getMessage("auth.message.register", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("auth/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginUser, BindingResult result) {
+    public ResponseEntity<?> login(
+            @Valid @RequestBody LoginDto loginUser,
+            BindingResult result,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
 
         if (result.hasErrors()) {
-            response.put("message", "Credenciales invalidas");
+            response.put(MESSAGE, this.messageSource.getMessage("auth.message.errorCredentials", null, locale));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         Authentication authentication =
-                this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword()));
+                this.authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(loginUser.getUsername(), loginUser.getPassword())
+                );
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtProvider.generateToken(authentication);
