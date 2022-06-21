@@ -3,6 +3,7 @@ package com.dev.springboot.backend.apirest.controllers;
 import com.dev.springboot.backend.apirest.models.entities.Author;
 import com.dev.springboot.backend.apirest.models.services.IAuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,64 +14,79 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class AuthorController {
+    private static final String AUTHOR = "author";
+    private static final String MESSAGE = "message";
+    private static final String ERROR = "error";
+    private static final String ERRORS = "errors";
+
+    @Autowired
+    private MessageSource messageSource;
+
     @Autowired
     private IAuthorService authorService;
 
     @GetMapping("/authors")
-    public ResponseEntity<?> index() {
+    public ResponseEntity<?> index(Locale locale) {
         Map<String, Object> response = new HashMap<>();
 
         List<Author> authors = this.authorService.findAll();
 
-        response.put("author", authors);
-        response.put("message", "Lista de autores cargada correctamente");
+        response.put(AUTHOR, authors);
+        response.put(MESSAGE, this.messageSource.getMessage("author.message.successIndex", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/author/{id}")
-    public ResponseEntity<?> show(@PathVariable Long id) {
+    public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
-        Author author = null;
+        Author author = new Author();
+        String authorNull = this.messageSource.getMessage("author.message.authorNull", null, locale);
 
         try {
             author = this.authorService.findById(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al realizar la consulta a la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
+            response.put(ERROR, e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (author == null) {
-            response.put("message", "El autor Id: ".concat(id.toString().concat(" no existe en la base de datos")));
+            response.put(MESSAGE, String.format(authorNull, id.toString()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
-        response.put("author", author);
-        response.put("message", "Autor cargado correctamente");
+        response.put(AUTHOR, author);
+        response.put(MESSAGE, this.messageSource.getMessage("author.message.successShow", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/author")
-    public ResponseEntity<?> create(@Valid @RequestBody Author author, BindingResult result) {
+    public ResponseEntity<?> create(
+            @Valid @RequestBody Author author,
+            BindingResult result,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
-        Author newAuthor = null;
+        Author newAuthor = new Author();
+        String errorsMessage = this.messageSource.getMessage("author.message.errors", null, locale);
 
         if(result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
+                return String.format(errorsMessage, error.getField()).concat(" ").concat(error.getDefaultMessage());
             }).collect(Collectors.toList());
 
-            response.put("errors", errors);
+            response.put(ERRORS, errors);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
@@ -78,36 +94,43 @@ public class AuthorController {
         try {
             newAuthor = this.authorService.save(author);
         } catch (DataAccessException e) {
-            response.put("message", "Error al realizar la consulta a la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
+            response.put(ERROR, e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("author", newAuthor);
-        response.put("message", "Autor creado correctamente");
+        response.put(AUTHOR, newAuthor);
+        response.put(MESSAGE, this.messageSource.getMessage("author.message.successCreate", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/author/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody Author author, BindingResult result, @PathVariable Long id) {
+    public ResponseEntity<?> update(
+            @Valid @RequestBody Author author,
+            BindingResult result,
+            @PathVariable Long id,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
         Author currentAuthor = this.authorService.findById(id);
-        Author updateAuthor = null;
+        Author updateAuthor = new Author();
+        String errorsMessage = this.messageSource.getMessage("author.message.errors", null, locale);
+        String authorNull = this.messageSource.getMessage("author.message.authorNull", null, locale);
 
         if(result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
+                return String.format(errorsMessage, error.getField()).concat(" ").concat(error.getDefaultMessage());
             }).collect(Collectors.toList());
 
-            response.put("errors", errors);
+            response.put(ERRORS, errors);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         if (currentAuthor == null) {
-            response.put("message", "Error: No se pudo actualizar, el autor ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+            response.put(MESSAGE, String.format(authorNull, id.toString()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -119,31 +142,31 @@ public class AuthorController {
 
             updateAuthor = this.authorService.save(currentAuthor);
         } catch (DataAccessException e) {
-            response.put("message", "Error al actualizar el autor en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
+            response.put(ERROR, e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("author", updateAuthor);
-        response.put("message", "El autor ha sido actualizado correctamente");
+        response.put(AUTHOR, updateAuthor);
+        response.put(MESSAGE, this.messageSource.getMessage("author.message.successUpdate", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/author/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
 
         try {
             this.authorService.delete(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al elimiar al autor en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
+            response.put(ERROR, e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El autor ha sido eliminado con exito");
+        response.put(MESSAGE, this.messageSource.getMessage("author.message.successDelete", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
