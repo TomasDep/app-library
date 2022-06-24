@@ -21,6 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+    private static final String PUBLIC_ROUTES[] = { "/api/auth/**", "/api/genres", "/api/authors" };
+
     @Autowired
     public UserDetailsServiceImpl userDetailsService;
 
@@ -57,7 +59,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**", "/api/genres", "/api/authors").permitAll()
+                .antMatchers(PUBLIC_ROUTES).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(this.jwtEntryPoint)
