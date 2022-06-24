@@ -23,9 +23,9 @@ public class UserController {
     @Autowired
     IUserService userService;
 
+    @ApiOperation(value = "Encontrar listado de todos los usuarios")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    @ApiOperation(value = "Encontrar listado de todos los usuarios")
     public ResponseEntity<?> index() {
         Map<String, Object> response = new HashMap<>();
 
@@ -37,9 +37,9 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Encontrar un usuario por id")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{id}")
-    @ApiOperation(value = "Encontrar un usuario por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         User user = null;
@@ -63,9 +63,9 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Registrar a un usuario")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users")
-    @ApiOperation(value = "Registrar a un usuario")
     public ResponseEntity<?> create(@Valid @RequestBody User user, BindingResult result) {
         Map<String, Object> response = new HashMap<>();
         User newUser = null;
@@ -94,9 +94,9 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Actualizar los datos de un usuario por id")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/users/{id}")
-    @ApiOperation(value = "Actualizar los datos de un usuario por id")
     public ResponseEntity<?> update(@Valid @RequestBody User user, BindingResult result ,@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         User currentUser = this.userService.findById(id);
@@ -137,9 +137,9 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Eliminar un usuario por el id")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/users/{id}")
-    @ApiOperation(value = "Eliminar un usuario por el id")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 

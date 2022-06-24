@@ -23,8 +23,8 @@ public class GenreController {
     @Autowired
     private IGenreService genreService;
 
-    @GetMapping("/genres")
     @ApiOperation(value = "Listado de Generos")
+    @GetMapping("/genres")
     public ResponseEntity<?> index() {
         Map<String, Object> response = new HashMap<>();
 
@@ -36,9 +36,9 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Mostrar genero por id")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("genre/{id}")
-    @ApiOperation(value = "Mostrar genero por id")
     public ResponseEntity<?> show(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Genre genre = null;
@@ -62,9 +62,9 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Crear un genero")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/genre")
-    @ApiOperation(value = "Crear un genero")
     public ResponseEntity<?> create(@Valid @RequestBody Genre genre, BindingResult result) {
         Map<String, Object> response = new HashMap<>();
         Genre newGenre = null;
@@ -93,9 +93,9 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Actualizar un genero")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/genre/{id}")
-    @ApiOperation(value = "Actualizar un genero")
     public ResponseEntity<?> update(@Valid @RequestBody Genre genre, BindingResult result, @PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         Genre currentGenres = this.genreService.findById(id);
@@ -132,9 +132,9 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Eliminar un genero")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/genre/{id}")
-    @ApiOperation(value = "Eliminar un genero")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 

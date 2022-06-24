@@ -9,6 +9,7 @@ import com.dev.springboot.backend.apirest.models.entities.Role;
 import com.dev.springboot.backend.apirest.models.entities.User;
 import com.dev.springboot.backend.apirest.models.services.IRoleService;
 import com.dev.springboot.backend.apirest.models.services.IUserService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,7 @@ public class AuthController {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @ApiOperation(value = "Registrar un usuario")
     @PostMapping("auth/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody NewUserDto newUserDto,
@@ -112,6 +114,7 @@ public class AuthController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Iniciar sesion")
     @PostMapping("auth/login")
     public ResponseEntity<?> login(
             @Valid @RequestBody LoginDto loginUser,
