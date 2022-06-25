@@ -21,7 +21,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
-    private static final String PUBLIC_ROUTES[] = { "/api/auth/**", "/api/genres", "/api/authors" };
+    private static final String PUBLIC_ROUTES[] = {
+            "/api/auth/**",
+            "/api/genres",
+            "/api/authors",
+            "/v2/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/configuration/**"
+    };
 
     @Autowired
     public UserDetailsServiceImpl userDetailsService;
