@@ -4,6 +4,7 @@ import com.dev.springboot.backend.apirest.models.entities.Genre;
 import com.dev.springboot.backend.apirest.models.services.IGenreService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,24 +15,33 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class GenreController {
+    private static final String GENRES = "genres";
+    private static final String MESSAGE = "message";
+    private static final String ERROR = "error";
+    private static final String ERRORS = "errors";
+
     @Autowired
     private IGenreService genreService;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @ApiOperation(value = "Listado de Generos")
     @GetMapping("/genres")
-    public ResponseEntity<?> index() {
+    public ResponseEntity<?> index(Locale locale) {
         Map<String, Object> response = new HashMap<>();
 
         List<Genre> genres = this.genreService.findAll();
 
-        response.put("genres", genres);
-        response.put("message", "Listado de generos cargado con exito");
+        response.put(GENRES, genres);
+        response.put(MESSAGE, this.messageSource.getMessage("genres.message.successIndex", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
@@ -39,25 +49,27 @@ public class GenreController {
     @ApiOperation(value = "Mostrar genero por id")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("genre/{id}")
-    public ResponseEntity<?> show(@PathVariable Long id) {
+    public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
-        Genre genre = null;
+        String messageDataAccess = this.messageSource.getMessage("genres.message.errorDataAccess", null, locale);
+        String messageNotFound = this.messageSource.getMessage("genres.message.clientNull", null, locale);
+        Genre genre = new Genre();
 
         try {
             genre = this.genreService.findById(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al realizar la consulta a la base de datos");
-            response.put("error", response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage())));
+            response.put(MESSAGE, this.messageSource.getMessage("genres.message.internalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (genre == null) {
-            response.put("message", "El genero ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+            response.put(MESSAGE, String.format(messageNotFound, id.toString()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
-        response.put("genre", genre);
-        response.put("message", "Genero encontrado con exito");
+        response.put(GENRES, genre);
+        response.put(MESSAGE, this.messageSource.getMessage("genres.message.successShow", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
@@ -65,16 +77,22 @@ public class GenreController {
     @ApiOperation(value = "Crear un genero")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/genre")
-    public ResponseEntity<?> create(@Valid @RequestBody Genre genre, BindingResult result) {
+    public ResponseEntity<?> create(
+            @Valid @RequestBody Genre genre,
+            BindingResult result,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
-        Genre newGenre = null;
+        String messageDataAccess = this.messageSource.getMessage("genres.message.errorDataAccess", null, locale);
+        String messageErrors = this.messageSource.getMessage("genres.message.errors", null, locale);
+        Genre newGenre = new Genre();
 
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
+                return String.format(messageErrors, error.getField(), error.getDefaultMessage());
             }).collect(Collectors.toList());
 
-            response.put("errors", errors);
+            response.put(ERRORS, errors);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
@@ -82,13 +100,13 @@ public class GenreController {
         try {
             newGenre = this.genreService.save(genre);
         } catch (DataAccessException e) {
-            response.put("message", "Error al insertar a la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("genres.message.internalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("genre", newGenre);
-        response.put("message", "Genero creado con exito");
+        response.put(GENRES, newGenre);
+        response.put(MESSAGE, this.messageSource.getMessage("genres.message.successCreate", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
@@ -96,23 +114,31 @@ public class GenreController {
     @ApiOperation(value = "Actualizar un genero")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/genre/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody Genre genre, BindingResult result, @PathVariable Long id) {
+    public ResponseEntity<?> update(
+            @Valid @RequestBody Genre genre,
+            BindingResult result,
+            @PathVariable Long id,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
         Genre currentGenres = this.genreService.findById(id);
-        Genre updateGenres = null;
+        String messageDataAccess = this.messageSource.getMessage("genres.message.errorDataAccess", null, locale);
+        String messageErrors = this.messageSource.getMessage("genres.message.errors", null, locale);
+        String messageNotFound = this.messageSource.getMessage("genres.message.clientNull", null, locale);
+        Genre updateGenres = new Genre();
 
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
+                return String.format(messageErrors, error.getField(), error.getDefaultMessage());
             }).collect(Collectors.toList());
 
-            response.put("errors", errors);
+            response.put(ERRORS, errors);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         if (currentGenres == null) {
-            response.put("message", "Error: No se pudo actualizar, el cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+            response.put(MESSAGE, String.format(messageNotFound, id.toString()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -121,13 +147,13 @@ public class GenreController {
 
             updateGenres = this.genreService.save(currentGenres);
         } catch (DataAccessException e) {
-            response.put("message", "Error al actualizar el cliente en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("genres.message.internalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El genero ha sido actualizado con exito");
-        response.put("client", updateGenres);
+        response.put(MESSAGE, this.messageSource.getMessage("genres.message.successUpdate", null, locale));
+        response.put(GENRES, updateGenres);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
@@ -135,18 +161,19 @@ public class GenreController {
     @ApiOperation(value = "Eliminar un genero")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/genre/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
+        String messageDataAccess = this.messageSource.getMessage("genres.message.errorDataAccess", null, locale);
 
         try {
             this.genreService.delete(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al eliminar el cliente en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("genres.message.internalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El genero ha sido eliminado con exito");
+        response.put(MESSAGE, this.messageSource.getMessage("genres.message.successDelete", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
