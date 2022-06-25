@@ -9,7 +9,6 @@
 - JWT
 - Lombok
 - Swagger
-- Próximamente más...
 # UML
 ## Diagrama E-R
 ![Alt text](src/main/resources/static/images/diagrama-e-r-libreria.png?raw=true "diagrama entidad relacion")

@@ -2,6 +2,7 @@ package com.dev.springboot.backend.apirest.controllers;
 
 import com.dev.springboot.backend.apirest.models.entities.Author;
 import com.dev.springboot.backend.apirest.models.services.IAuthorService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +33,7 @@ public class AuthorController {
     @Autowired
     private IAuthorService authorService;
 
+    @ApiOperation(value = "Lista de autores")
     @GetMapping("/authors")
     public ResponseEntity<?> index(Locale locale) {
         Map<String, Object> response = new HashMap<>();
@@ -44,6 +46,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Ver un autor por id")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/author/{id}")
     public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
@@ -70,6 +73,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Crear a un autor")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/author")
     public ResponseEntity<?> create(
@@ -80,10 +84,11 @@ public class AuthorController {
         Map<String, Object> response = new HashMap<>();
         Author newAuthor = new Author();
         String errorsMessage = this.messageSource.getMessage("author.message.errors", null, locale);
+        String errorDataAccessMessage = this.messageSource.getMessage("author.message.errorDataAccess", null, locale);
 
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return String.format(errorsMessage, error.getField()).concat(" ").concat(error.getDefaultMessage());
+                return String.format(errorsMessage, error.getField(), error.getDefaultMessage());
             }).collect(Collectors.toList());
 
             response.put(ERRORS, errors);
@@ -95,7 +100,7 @@ public class AuthorController {
             newAuthor = this.authorService.save(author);
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
-            response.put(ERROR, e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(ERROR, String.format(errorDataAccessMessage, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -105,6 +110,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Actualizar a un autor por id")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/author/{id}")
     public ResponseEntity<?> update(
@@ -119,9 +125,9 @@ public class AuthorController {
         String errorsMessage = this.messageSource.getMessage("author.message.errors", null, locale);
         String authorNull = this.messageSource.getMessage("author.message.authorNull", null, locale);
 
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return String.format(errorsMessage, error.getField()).concat(" ").concat(error.getDefaultMessage());
+                return String.format(errorsMessage, error.getField(), error.getDefaultMessage());
             }).collect(Collectors.toList());
 
             response.put(ERRORS, errors);
@@ -153,16 +159,18 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Borrar a un autor por id")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/author/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
+        String errorMessage = this.messageSource.getMessage("author.message.errorDataAccess", null, locale);
 
         try {
             this.authorService.delete(id);
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
-            response.put(ERROR, e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(ERROR, String.format(errorMessage, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

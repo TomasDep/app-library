@@ -4,6 +4,7 @@ import com.dev.springboot.backend.apirest.models.entities.Client;
 import com.dev.springboot.backend.apirest.models.services.IClientService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,68 +15,81 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class ClientController {
+    private static final String CLIENT = "client";
+    private static final String MESSAGE = "message";
+    private static final String ERROR = "error";
+    private static final String ERRORS = "errors";
+
     @Autowired
     private IClientService clientService;
 
+    @Autowired
+    private MessageSource messageSource;
+
+    @ApiOperation(value = "${client.message.apiOperation.index}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/clients")
-    @ApiOperation(value = "Encontrar el listado de todos los clientes")
-    public ResponseEntity<?> index() {
+    public ResponseEntity<?> index(Locale locale) {
         Map<String, Object> response = new HashMap<>();
 
         List<Client> clients = this.clientService.findAll();
 
-        response.put("client", clients);
-        response.put("message", "Listado de clientes cargado con exito");
+        response.put(CLIENT, clients);
+        response.put(MESSAGE, this.messageSource.getMessage("client.message.successIndex", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Encontrar un cliente por id")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/clients/{id}")
-    @ApiOperation(value = "Encontrar un cliente por id")
-    public ResponseEntity<?> show(@PathVariable Long id) {
+    public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
-        Client client = null;
+        String messageNotFound = this.messageSource.getMessage("client.message.clientNull", null, locale);
+        String messageDataAccess = this.messageSource.getMessage("client.message.errorDataAccess", null, locale);
+        Client client = new Client();
 
         try{
             client = this.clientService.findById(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al realizar la consulta a la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("client.message.internalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (client == null) {
-           response.put("message", "El cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+           response.put(MESSAGE, String.format(messageNotFound, id.toString()));
            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
-        response.put("client", client);
-        response.put("message", "Cliente encontrado con exito");
+        response.put(CLIENT, client);
+        response.put(MESSAGE, this.messageSource.getMessage("client.message.successShow", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Ingresar un nuevo cliente")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/clients")
-    @ApiOperation(value = "Ingresar un nuevo cliente")
-    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
+    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result, Locale locale) {
         Map<String, Object> response = new HashMap<>();
-        Client newClient = null;
+        Client newClient = new Client();
+        String messageErrors = this.messageSource.getMessage("client.message.errors", null, locale);
+        String messageDataAccess = this.messageSource.getMessage("client.message.errorDataAccess", null, locale);
 
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
+                return String.format(messageErrors, error.getField(), error.getDefaultMessage());
             }).collect(Collectors.toList());
 
-            response.put("errors", errors);
+            response.put(ERRORS, errors);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
@@ -83,37 +97,45 @@ public class ClientController {
         try {
             newClient = this.clientService.save(client);
         } catch (DataAccessException e) {
-            response.put("message", "Error al insertar a la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("client.message.successShow", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(),e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido creado con exito");
-        response.put("client", newClient);
+        response.put(MESSAGE, this.messageSource.getMessage("client.message.successCreate", null, locale));
+        response.put(CLIENT, newClient);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Actualizar los datos de un cliente por id")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/clients/{id}")
-    @ApiOperation(value = "Actualizar los datos de un cliente por id")
-    public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
+    public ResponseEntity<?> update(
+            @Valid @RequestBody Client client,
+            BindingResult result,
+            @PathVariable Long id,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
         Client currentClient = this.clientService.findById(id);
-        Client updateClient = null;
+        Client updateClient = new Client();
+        String messageNotFound = this.messageSource.getMessage("client.message.clientNull", null, locale);
+        String messageErrors = this.messageSource.getMessage("client.message.errors", null, locale);
+        String messageDataAccess = this.messageSource.getMessage("client.message.errorDataAccess", null, locale);
 
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(error -> {
-                return "El campo '".concat(error.getField()).concat("' ").concat(error.getDefaultMessage());
+                return String.format(messageErrors, error.getField(), error.getDefaultMessage());
             }).collect(Collectors.toList());
 
-            response.put("errors", errors);
+            response.put(ERRORS, errors);
 
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
         if (currentClient == null) {
-            response.put("message", "Error: No se pudo actualizar, el cliente ID: ".concat(id.toString().concat(" no existe en la base de datos")));
+            response.put(MESSAGE, String.format(messageNotFound, id.toString()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
@@ -126,32 +148,33 @@ public class ClientController {
 
             updateClient = this.clientService.save(currentClient);
         } catch (DataAccessException e) {
-            response.put("message", "Error al actualizar el cliente en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("client.message.interalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido actualizado con exito");
-        response.put("client", updateClient);
+        response.put(MESSAGE, this.messageSource.getMessage("client.message.successUpdate", null, locale));
+        response.put(CLIENT, updateClient);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Eliminar un cliente por el id")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/clients/{id}")
-    @ApiOperation(value = "Eliminar un cliente por el id")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
+        String messageDataAccess = this.messageSource.getMessage("client.message.errorDataAccess", null, locale);
 
         try {
             this.clientService.delete(id);
         } catch (DataAccessException e) {
-            response.put("message", "Error al eliminar el cliente en la base de datos");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            response.put(MESSAGE, this.messageSource.getMessage("client.message.internalServerError", null, locale));
+            response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("message", "El cliente ha sido eliminado con exito");
+        response.put(MESSAGE, this.messageSource.getMessage("client.message.successDelete", null, locale));
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
