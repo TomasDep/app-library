@@ -1,5 +1,6 @@
 package com.dev.springboot.backend.apirest.controllers;
 
+import com.dev.springboot.backend.apirest.dto.ClientDto;
 import com.dev.springboot.backend.apirest.models.entities.Client;
 import com.dev.springboot.backend.apirest.models.services.IClientService;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +34,7 @@ public class ClientController {
     @Autowired
     private MessageSource messageSource;
 
-    @ApiOperation(value = "${client.message.apiOperation.index}")
+    @ApiOperation(value = "${ClientController.index.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/clients")
     public ResponseEntity<?> index(Locale locale) {
@@ -78,7 +79,11 @@ public class ClientController {
     @ApiOperation(value = "Ingresar un nuevo cliente")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/clients")
-    public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result, Locale locale) {
+    public ResponseEntity<?> create(
+            @Valid @RequestBody ClientDto client,
+            BindingResult result,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
         Client newClient = new Client();
         String messageErrors = this.messageSource.getMessage("client.message.errors", null, locale);
@@ -95,7 +100,15 @@ public class ClientController {
         }
 
         try {
-            newClient = this.clientService.save(client);
+            newClient = this.clientService.save(
+                    new Client(
+                            client.getName(),
+                            client.getLastname(),
+                            client.getEmail(),
+                            client.getAddress(),
+                            client.getPhone()
+                    )
+            );
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("client.message.successShow", null, locale));
             response.put(ERROR, String.format(messageDataAccess, e.getMessage(),e.getMostSpecificCause()));
@@ -112,7 +125,7 @@ public class ClientController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/clients/{id}")
     public ResponseEntity<?> update(
-            @Valid @RequestBody Client client,
+            @Valid @RequestBody ClientDto client,
             BindingResult result,
             @PathVariable Long id,
             Locale locale
