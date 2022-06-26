@@ -1,5 +1,6 @@
 package com.dev.springboot.backend.apirest.controllers;
 
+import com.dev.springboot.backend.apirest.dto.GenreDto;
 import com.dev.springboot.backend.apirest.models.entities.Genre;
 import com.dev.springboot.backend.apirest.models.services.IGenreService;
 import io.swagger.annotations.ApiOperation;
@@ -78,7 +79,7 @@ public class GenreController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/genre")
     public ResponseEntity<?> create(
-            @Valid @RequestBody Genre genre,
+            @Valid @RequestBody GenreDto genre,
             BindingResult result,
             Locale locale
     ) {
@@ -98,7 +99,7 @@ public class GenreController {
         }
 
         try {
-            newGenre = this.genreService.save(genre);
+            newGenre = this.genreService.save(new Genre(genre.getName()));
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("genres.message.internalServerError", null, locale));
             response.put(ERROR, String.format(messageDataAccess, e.getMessage(), e.getMostSpecificCause()));
@@ -115,7 +116,7 @@ public class GenreController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/genre/{id}")
     public ResponseEntity<?> update(
-            @Valid @RequestBody Genre genre,
+            @Valid @RequestBody GenreDto genre,
             BindingResult result,
             @PathVariable Long id,
             Locale locale

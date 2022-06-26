@@ -13,9 +13,9 @@ import java.util.Date;
 
 @Entity
 @Table(name = "genres")
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
 public class Genre implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +31,10 @@ public class Genre implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public Genre(String name) {
+        this.name = name;
+    }
 
     @PrePersist
     public void prePersist() {

@@ -15,9 +15,9 @@ import java.util.Date;
 
 @Entity
 @Table(name = "clients")
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
 public class Client implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +46,14 @@ public class Client implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public Client(String name, String lastname, String email, String address, String phone) {
+        this.name = name;
+        this.lastname = lastname;
+        this.email = email;
+        this.address = address;
+        this.phone = phone;
+    }
 
     @PrePersist
     public void PrePersist() {
