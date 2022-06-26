@@ -14,9 +14,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "authors")
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
 public class Author implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +43,12 @@ public class Author implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public Author(String name, String lastname, String country) {
+        this.name = name;
+        this.lastname = lastname;
+        this.country = country;
+    }
 
     @PrePersist
     public void PrePersist() {
