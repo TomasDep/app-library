@@ -1,6 +1,5 @@
 package com.dev.springboot.backend.apirest.controllers;
 
-import com.dev.springboot.backend.apirest.dto.UserDto;
 import com.dev.springboot.backend.apirest.models.entities.User;
 import com.dev.springboot.backend.apirest.models.services.IUserService;
 import io.swagger.annotations.ApiOperation;
@@ -80,7 +79,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users")
     public ResponseEntity<?> create(
-            @Valid @RequestBody UserDto user,
+            @Valid @RequestBody User user,
             BindingResult result,
             Locale locale
     ) {
@@ -99,15 +98,7 @@ public class UserController {
         }
 
         try {
-            newUser = this.userService.save(
-                    new User(
-                            user.getName(),
-                            user.getLastname(),
-                            user.getUsername(),
-                            user.getEmail(),
-                            user.getPassword()
-                    )
-            );
+            newUser = this.userService.save(user);
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("users.message.internalServerError", null, locale));
             response.put(USERS, newUser);
@@ -124,7 +115,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/users/{id}")
     public ResponseEntity<?> update(
-            @Valid @RequestBody UserDto user,
+            @Valid @RequestBody User user,
             BindingResult result,
             @PathVariable Long id,
             Locale locale
