@@ -1,5 +1,6 @@
 package com.dev.springboot.backend.apirest.controllers;
 
+import com.dev.springboot.backend.apirest.dto.AuthorDto;
 import com.dev.springboot.backend.apirest.models.entities.Author;
 import com.dev.springboot.backend.apirest.models.services.IAuthorService;
 import io.swagger.annotations.ApiOperation;
@@ -77,7 +78,7 @@ public class AuthorController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/author")
     public ResponseEntity<?> create(
-            @Valid @RequestBody Author author,
+            @Valid @RequestBody AuthorDto author,
             BindingResult result,
             Locale locale
     ) {
@@ -97,7 +98,9 @@ public class AuthorController {
         }
 
         try {
-            newAuthor = this.authorService.save(author);
+            newAuthor = this.authorService.save(
+                    new Author(author.getName(), author.getLastname(), author.getCountry())
+            );
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("author.message.internalServerError", null, locale));
             response.put(ERROR, String.format(errorDataAccessMessage, e.getMessage(), e.getMostSpecificCause()));
@@ -114,7 +117,7 @@ public class AuthorController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/author/{id}")
     public ResponseEntity<?> update(
-            @Valid @RequestBody Author author,
+            @Valid @RequestBody AuthorDto author,
             BindingResult result,
             @PathVariable Long id,
             Locale locale
@@ -144,7 +147,6 @@ public class AuthorController {
             currentAuthor.setName(author.getName());
             currentAuthor.setLastname(author.getLastname());
             currentAuthor.setCountry(author.getCountry());
-            currentAuthor.setBook(author.getBook());
 
             updateAuthor = this.authorService.save(currentAuthor);
         } catch (DataAccessException e) {
