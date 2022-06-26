@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
-    private static final String PUBLIC_ROUTES[] = {
+    private static final String[] PUBLIC_ROUTES = {
             "/api/auth/**",
             "/api/genres",
             "/api/authors",
