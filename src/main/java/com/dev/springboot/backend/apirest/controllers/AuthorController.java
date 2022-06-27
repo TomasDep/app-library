@@ -34,7 +34,7 @@ public class AuthorController {
     @Autowired
     private IAuthorService authorService;
 
-    @ApiOperation(value = "Lista de autores")
+    @ApiOperation(value = "${AuthorController.index.value}")
     @GetMapping("/authors")
     public ResponseEntity<?> index(Locale locale) {
         Map<String, Object> response = new HashMap<>();
@@ -47,7 +47,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Ver un autor por id")
+    @ApiOperation(value = "${AuthorController.show.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/author/{id}")
     public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
@@ -74,7 +74,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Crear a un autor")
+    @ApiOperation(value = "${AuthorController.create.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/author")
     public ResponseEntity<?> create(
@@ -113,7 +113,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Actualizar a un autor por id")
+    @ApiOperation(value = "${AuthorController.update.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/author/{id}")
     public ResponseEntity<?> update(
@@ -161,7 +161,7 @@ public class AuthorController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Borrar a un autor por id")
+    @ApiOperation(value = "${AuthorController.delete.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/author/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {

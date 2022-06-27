@@ -44,6 +44,12 @@ public class Author implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    public Author(String name, String lastname, String country) {
+        this.name = name;
+        this.lastname = lastname;
+        this.country = country;
+    }
+
     @PrePersist
     public void PrePersist() {
         this.createAt = new Date();
