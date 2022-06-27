@@ -34,7 +34,7 @@ public class GenreController {
     @Autowired
     private MessageSource messageSource;
 
-    @ApiOperation(value = "Listado de Generos")
+    @ApiOperation(value = "${GenreController.index.value}")
     @GetMapping("/genres")
     public ResponseEntity<?> index(Locale locale) {
         Map<String, Object> response = new HashMap<>();
@@ -47,7 +47,7 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Mostrar genero por id")
+    @ApiOperation(value = "${GenreController.show.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("genre/{id}")
     public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
@@ -75,7 +75,7 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Crear un genero")
+    @ApiOperation(value = "${GenreController.create.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/genre")
     public ResponseEntity<?> create(
@@ -112,7 +112,7 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Actualizar un genero")
+    @ApiOperation(value = "${GenreController.update.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/genre/{id}")
     public ResponseEntity<?> update(
@@ -159,7 +159,7 @@ public class GenreController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Eliminar un genero")
+    @ApiOperation(value = "${GenreController.delete.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/genre/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {

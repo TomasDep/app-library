@@ -12,6 +12,7 @@ import com.dev.springboot.backend.apirest.models.services.IUserService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,7 +56,7 @@ public class AuthController {
     @Autowired
     private JwtProvider jwtProvider;
 
-    @ApiOperation(value = "Registrar un usuario")
+    @ApiOperation(value = "${AuthController.register.value}")
     @PostMapping("auth/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody NewUserDto newUserDto,
@@ -106,7 +107,13 @@ public class AuthController {
 
         user.setRoles(roles);
 
-        this.userService.save(user);
+        try {
+            this.userService.save(user);
+        } catch (DataAccessException e) {
+            response.put(MESSAGE, this.messageSource.getMessage("auth.message.internalServerError", null, locale));
+            response.put(USER, user);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         response.put(USER, user);
         response.put(MESSAGE, this.messageSource.getMessage("auth.message.register", null, locale));
@@ -114,7 +121,7 @@ public class AuthController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Iniciar sesion")
+    @ApiOperation(value = "${AuthController.login.value}")
     @PostMapping("auth/login")
     public ResponseEntity<?> login(
             @Valid @RequestBody LoginDto loginUser,

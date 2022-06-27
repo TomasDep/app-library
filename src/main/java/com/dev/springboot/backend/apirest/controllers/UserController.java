@@ -1,6 +1,10 @@
 package com.dev.springboot.backend.apirest.controllers;
 
+import com.dev.springboot.backend.apirest.dto.UserDto;
+import com.dev.springboot.backend.apirest.enums.RoleEnum;
+import com.dev.springboot.backend.apirest.models.entities.Role;
 import com.dev.springboot.backend.apirest.models.entities.User;
+import com.dev.springboot.backend.apirest.models.services.IRoleService;
 import com.dev.springboot.backend.apirest.models.services.IUserService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +13,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,14 +28,21 @@ public class UserController {
     private static final String MESSAGE = "message";
     private static final String ERROR = "error";
     private static final String ERRORS = "errors";
+    private static final String ROLE = "admin";
 
     @Autowired
-    IUserService userService;
+    private IUserService userService;
 
     @Autowired
-    MessageSource messageSource;
+    private PasswordEncoder passwordEncoder;
 
-    @ApiOperation(value = "Encontrar listado de todos los usuarios")
+    @Autowired
+    private IRoleService roleService;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @ApiOperation(value = "${UserController.index.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<?> index(Locale locale) {
@@ -47,7 +56,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Encontrar un usuario por id")
+    @ApiOperation(value = "${UserController.show.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{id}")
     public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
@@ -75,16 +84,19 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Registrar a un usuario")
+    @ApiOperation(value = "${UserController.create.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users")
     public ResponseEntity<?> create(
-            @Valid @RequestBody User user,
+            @Valid @RequestBody UserDto user,
             BindingResult result,
             Locale locale
     ) {
         Map<String, Object> response = new HashMap<>();
         String messageErrors = this.messageSource.getMessage("users.message.errors", null, locale);
+        String errorMessage = this.messageSource.getMessage("users.message.errorExist", null, locale);
+        String username = this.messageSource.getMessage("user.username", null, locale);
+        String email = this.messageSource.getMessage("user.email", null, locale);
         User newUser = new User();
 
         if (result.hasErrors()) {
@@ -97,8 +109,35 @@ public class UserController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
         }
 
+        User tempUser = new User(
+                user.getName(),
+                user.getLastname(),
+                user.getUsername(),
+                user.getEmail(),
+                this.passwordEncoder.encode(user.getPassword())
+        );
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(this.roleService.getByRoleName(RoleEnum.ROLE_USER).get());
+
+        if (user.getRoles().contains(ROLE)) {
+            roles.add(this.roleService.getByRoleName(RoleEnum.ROLE_ADMIN).get());
+        }
+
+        tempUser.setRoles(roles);
+
+        if (this.userService.existsByUsername(user.getUsername())) {
+            response.put(MESSAGE, String.format(errorMessage, username));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        if (this.userService.existsByEmail(user.getEmail())) {
+            response.put(MESSAGE, String.format(errorMessage, email));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        }
+
         try {
-            newUser = this.userService.save(user);
+            newUser = this.userService.save(tempUser);
         } catch (DataAccessException e) {
             response.put(MESSAGE, this.messageSource.getMessage("users.message.internalServerError", null, locale));
             response.put(USERS, newUser);
@@ -111,11 +150,11 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Actualizar los datos de un usuario por id")
+    @ApiOperation(value = "${UserController.update.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/users/{id}")
     public ResponseEntity<?> update(
-            @Valid @RequestBody User user,
+            @Valid @RequestBody UserDto user,
             BindingResult result,
             @PathVariable Long id,
             Locale locale
@@ -142,12 +181,20 @@ public class UserController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
+        Set<Role> roles = new HashSet<>();
+        roles.add(this.roleService.getByRoleName(RoleEnum.ROLE_USER).get());
+
+        if (user.getRoles().contains(ROLE)) {
+            roles.add(this.roleService.getByRoleName(RoleEnum.ROLE_ADMIN).get());
+        }
+
         try {
             currentUser.setName(user.getName());
             currentUser.setLastname(user.getLastname());
             currentUser.setLastname(user.getLastname());
             currentUser.setEmail(user.getEmail());
             currentUser.setPassword(user.getPassword());
+            currentUser.setRoles(roles);
 
             updateUser = this.userService.save(currentUser);
         } catch (DataAccessException e) {
@@ -162,7 +209,7 @@ public class UserController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Eliminar un usuario por el id")
+    @ApiOperation(value = "${UserController.delete.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {

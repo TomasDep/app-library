@@ -48,7 +48,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Encontrar un cliente por id")
+    @ApiOperation(value = "${ClientController.show.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/clients/{id}")
     public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
@@ -76,7 +76,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Ingresar un nuevo cliente")
+    @ApiOperation(value = "${ClientController.create.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/clients")
     public ResponseEntity<?> create(
@@ -121,7 +121,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Actualizar los datos de un cliente por id")
+    @ApiOperation(value = "${ClientController.update.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/clients/{id}")
     public ResponseEntity<?> update(
@@ -172,7 +172,7 @@ public class ClientController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Eliminar un cliente por el id")
+    @ApiOperation(value = "${ClientController.delete.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/clients/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, Locale locale) {
