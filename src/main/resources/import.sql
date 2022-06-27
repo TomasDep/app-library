@@ -15,8 +15,13 @@ INSERT INTO roles (role_name) VALUES('ROLE_ADMIN');
 INSERT INTO roles (role_name) VALUES('ROLE_USER');
 
 /*------------------------------------- EJEMPLOS USUARIOS -------------------------------------*/
-INSERT INTO users (name, lastname, username, email, password, create_at) VALUES('Julio', 'Cortazar', 'administrador', 'admin@email.com', '123456789', NOW());
-INSERT INTO users (name, lastname, username, email, password, create_at) VALUES('Pablo', 'Neruda', 'usuario', 'user@email.com', '123456789', NOW());
+INSERT INTO users (name, lastname, username, email, password, create_at) VALUES('Julio', 'Cortazar', 'administrador', 'admin@email.com', '$2a$10$4B5RdMmVQijOGQwYEQNdhOwf340PUdTMZGG6ycUoiy4dLtVnI5ASm', NOW());
+INSERT INTO users (name, lastname, username, email, password, create_at) VALUES('Pablo', 'Neruda', 'usuario', 'user@email.com', '$2a$10$gxmv4.jy0x0KN4BLXGwwGOeTF1tumJh/zj7ZZEDZY1eL5FsOExIUG', NOW());
+
+/*------------------------------------- EJEMPLOS ROLES_USUARIOS -------------------------------------*/
+INSERT INTO user_role (user_id, role_id) VALUES(1, 1);
+INSERT INTO user_role (user_id, role_id) VALUES(1, 2);
+INSERT INTO user_role (user_id, role_id) VALUES(2, 2);
 
 /*------------------------------------- EJEMPLOS AUTORES -------------------------------------*/
 INSERT INTO authors (name, lastname, country, create_at) VALUES('Edgar Allan', 'Poe', 'EE.UU.', NOW());
