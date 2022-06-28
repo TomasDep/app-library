@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,7 @@ public class AuthorController {
     private static final String MESSAGE = "message";
     private static final String ERROR = "error";
     private static final String ERRORS = "errors";
+    private static final String TOTAL = "total";
 
     @Autowired
     private MessageSource messageSource;
@@ -36,13 +38,18 @@ public class AuthorController {
 
     @ApiOperation(value = "${AuthorController.index.value}")
     @GetMapping("/authors")
-    public ResponseEntity<?> index(Locale locale) {
+    public ResponseEntity<?> index(
+            @RequestParam(name = "page", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "size", defaultValue = "5") int pageSize,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
+        Page<Author> authorPage = this.authorService.findAll(pageNumber, pageSize);
+        List<Author> authors = authorPage.getContent();
 
-        List<Author> authors = this.authorService.findAll();
-
-        response.put(AUTHOR, authors);
         response.put(MESSAGE, this.messageSource.getMessage("author.message.successIndex", null, locale));
+        response.put(AUTHOR, authors);
+        response.put(TOTAL, authorPage.getTotalElements());
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }

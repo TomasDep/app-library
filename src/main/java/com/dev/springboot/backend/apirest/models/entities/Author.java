@@ -1,6 +1,7 @@
 package com.dev.springboot.backend.apirest.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,6 +35,7 @@ public class Author implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = true)
+    @JsonIgnore
     private List<Book> book;
 
     @Column(name = "create_at")
@@ -43,6 +45,14 @@ public class Author implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public Author(Long id, String name, String lastname, String country, Date createAt) {
+        this.id = id;
+        this.name = name;
+        this.lastname = lastname;
+        this.country = country;
+        this.createAt = createAt;
+    }
 
     public Author(String name, String lastname, String country) {
         this.name = name;
