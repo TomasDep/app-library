@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +30,7 @@ public class UserController {
     private static final String ERROR = "error";
     private static final String ERRORS = "errors";
     private static final String ROLE = "admin";
+    private static final String TOTAL = "total";
 
     @Autowired
     private IUserService userService;
@@ -45,13 +47,18 @@ public class UserController {
     @ApiOperation(value = "${UserController.index.value}")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<?> index(Locale locale) {
+    public ResponseEntity<?> index(
+            @RequestParam(name = "page", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "size", defaultValue = "5") int pageSize,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
+        Page<User> pageUser = this.userService.findAll(pageNumber, pageSize);
+        List<User> users = pageUser.getContent();
 
-        List<User> users = this.userService.findAll();
-
-        response.put(USERS, users);
         response.put(MESSAGE, this.messageSource.getMessage("users.message.successIndex", null, locale));
+        response.put(USERS, users);
+        response.put(TOTAL, pageUser.getTotalElements());
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,7 @@ public class GenreController {
     private static final String MESSAGE = "message";
     private static final String ERROR = "error";
     private static final String ERRORS = "errors";
+    private static final String TOTAL = "total";
 
     @Autowired
     private IGenreService genreService;
@@ -36,13 +38,18 @@ public class GenreController {
 
     @ApiOperation(value = "${GenreController.index.value}")
     @GetMapping("/genres")
-    public ResponseEntity<?> index(Locale locale) {
+    public ResponseEntity<?> index(
+            @RequestParam(name = "page", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "size", defaultValue = "5") int pageSize,
+            Locale locale
+    ) {
         Map<String, Object> response = new HashMap<>();
+        Page<Genre> genrePage = this.genreService.findAll(pageNumber, pageSize);
+        List<Genre> genres = genrePage.getContent();
 
-        List<Genre> genres = this.genreService.findAll();
-
-        response.put(GENRES, genres);
         response.put(MESSAGE, this.messageSource.getMessage("genres.message.successIndex", null, locale));
+        response.put(GENRES, genres);
+        response.put(TOTAL, genrePage.getTotalElements());
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
