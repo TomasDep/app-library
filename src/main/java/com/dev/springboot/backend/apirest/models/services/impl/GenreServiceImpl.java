@@ -4,9 +4,9 @@ import com.dev.springboot.backend.apirest.models.dao.IGenreDao;
 import com.dev.springboot.backend.apirest.models.entities.Genre;
 import com.dev.springboot.backend.apirest.models.services.IGenreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class GenreServiceImpl implements IGenreService {
@@ -14,8 +14,9 @@ public class GenreServiceImpl implements IGenreService {
     private IGenreDao genreDao;
 
     @Override
-    public List<Genre> findAll() {
-        return (List<Genre>) this.genreDao.findAll();
+    public Page<Genre> findAll(int pageNumber, int pageSize) {
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        return this.genreDao.findAll(pageable);
     }
 
     @Override
