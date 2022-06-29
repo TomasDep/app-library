@@ -55,7 +55,6 @@ public class AuthorController {
     }
 
     @ApiOperation(value = "${AuthorController.show.value}")
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/author/{id}")
     public ResponseEntity<?> show(@PathVariable Long id, Locale locale) {
         Map<String, Object> response = new HashMap<>();
