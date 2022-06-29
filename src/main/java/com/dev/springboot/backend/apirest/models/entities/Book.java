@@ -3,6 +3,7 @@ package com.dev.springboot.backend.apirest.models.entities;
 import com.dev.springboot.backend.apirest.enums.BookStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "books")
+@NoArgsConstructor
 @Getter
 @Setter
 public class Book implements Serializable {
@@ -56,6 +58,24 @@ public class Book implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public Book(
+            String name,
+            String description,
+            BookStatusEnum status,
+            String observation,
+            Integer stock,
+            Double price,
+            Set<Genre> genre
+    ) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.observation = observation;
+        this.stock = stock;
+        this.price = price;
+        this.genre = genre;
+    }
 
     @PrePersist
     public void PrePersist() {
